@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Voice AI - Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8A63D2;
+            --primary-dark: #6A4B9E;
+            --secondary-color: #4FACFE;
+            --accent-color: #F7B731;
+            --bg-gradient: linear-gradient(135deg, #0F0F1F, #1A1A2E);
+            --container-bg: rgba(25, 25, 40, 0.95);
+            --text-color: #F0F0F0;
+            --text-muted: #A0A0A0;
+            --border-radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+             /* Keep existing styles */
+    align-items: flex-start; /* Changed from center to flex-start */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 2rem 20px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .background-effects {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .gradient-blur {
+            position: absolute;
+            width: 50vw;
+            height: 50vh;
+            background: radial-gradient(circle at center, var(--primary-color) 0%, transparent 70%);
+            filter: blur(100px);
+            opacity: 0.15;
+        }
+
+        .gradient-blur:nth-child(1) { top: -10%; left: -10%; }
+        .gradient-blur:nth-child(2) { bottom: -10%; right: -10%; }
+
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--glass-border);
+            transform: translateY(0);
+            opacity: 1;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(138, 99, 210, 0.1) 0%,
+                rgba(79, 172, 254, 0.05) 50%,
+                rgba(247, 183, 49, 0.08) 100%
+            );
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+            background: var(--primary-color);
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(138, 99, 210, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            --webkit-background-clip: text;
+            --webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 480px;
+            margin: 0 auto 2rem;
+        }
+
+        .visualizer {
+            height: 120px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .wave {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 6px;
+            padding: 0 24px;
+        }
+
+        .wave span {
+            width: 6px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--secondary-color), var(--primary-color));
+            border-radius: 4px;
+            animation: wave 1.2s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid var(--glass-border);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Enhanced button styles */
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 12px 24px rgba(138, 99, 210, 0.25);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.15),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 32px rgba(138, 99, 210, 0.35);
+        }
+
+        /* Keep existing functional CSS */
+        /* Add media queries and other existing styles */
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="gradient-blur"></div>
+        <div class="gradient-blur"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-robot fa-2x"></i>
+            </div>
+            <h1 style="background-color: none;">Voice AI</h1>
+            <p class="subtitle">Voice interface with LLM integration, real-time STT/TTS, and WebSocket streaming</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-comments feature-icon"></i>
+                    <p class="feature-text">LLM Integration</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <p class="feature-text">Real-time STT/TTS</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-plug feature-icon"></i>
+                    <p class="feature-text">WebSocket Streaming</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keep existing visualizer and functional elements -->
+        <div class="visualizer">
+            <div class="wave hidden" id="waveAnimation">
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span>
+            </div>
+        </div>
+
+        <div class="transcript" id="transcriptDisplay"></div>
+
+        <audio id="audioPlayback" class="hidden"></audio>
+
+        <p id="status">Click "Start Conversation" to begin</p>
+<br>
+        <div class="control-panel">
+            <div class="row">
+                <button id="startBtn">
+                    <i class="fas fa-microphone"></i>
+                    Start Conversation
+                </button>
+                <button id="stopBtn" class="accent hidden">
+                    <i class="fas fa-stop-circle"></i>
+                    Stop Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const startBtn      = document.getElementById('startBtn');
+        const stopBtn       = document.getElementById('stopBtn');
+        const statusText    = document.getElementById('status');
+        const waveAnimation = document.getElementById('waveAnimation');
+        const audioPlayback = document.getElementById('audioPlayback');
+        const transcriptDisplay = document.getElementById('transcriptDisplay'); // Added transcript element
+
+        // Audio settings (kept as is)
+        const SPEECH_THRESHOLD = 0.100;
+        const SILENCE_TIMEOUT  = 1500;
+
+        let mediaRecorder, audioChunks = [];
+        let isRecording = false, isPlaying = false;
+        let audioContext, analyser, processor, silenceTimer = null;
+
+        // WebSocket (kept as is)
+        const ws = new WebSocket(
+            `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/voiceagent/`
+        );
+        ws.onopen    = () => console.log('[ws] connected');
+        ws.onerror   = e => console.error('[ws] error', e);
+        ws.onclose   = () => console.log('[ws] closed');
+        ws.onmessage = async event => {
+             if (event.data instanceof Blob) {
+                // Handle audio blob (TTS response)
+                await handleTTSResponse(event.data);
+            } else if (typeof event.data === 'string') {
+                // Handle text data (transcript tokens)
+                displayTranscript(event.data);
+            }
+        };
+
+         // Function to display transcript tokens
+        function displayTranscript(token) {
+            // Append the received token to the transcript display
+            transcriptDisplay.textContent += token;
+            // Auto-scroll to the bottom
+            transcriptDisplay.scrollTop = transcriptDisplay.scrollHeight;
+        }
+
+
+        // Start a new recording session (kept as is)
+        function startRecording() {
+            audioChunks = [];
+            mediaRecorder.start();
+            isRecording = true;
+            statusText.textContent = "Listening...";
+            waveAnimation.classList.remove('hidden');
+            startBtn.classList.add('hidden');
+            stopBtn.classList.remove('hidden');
+             transcriptDisplay.textContent = ''; // Clear transcript at start of new recording
+        }
+
+        // Stop recording and send to server (kept as is)
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                isRecording = false;
+                statusText.textContent = "Processing...";
+                waveAnimation.classList.add('hidden');
+                stopBtn.classList.add('hidden');
+                // startBtn.classList.remove('hidden'); // Button state handled by onended/onmessage
+            }
+        }
+
+        // Handle incoming TTS blob (kept as is, added transcript update)
+        async function handleTTSResponse(blob) {
+            isPlaying = true;
+            audioPlayback.src = URL.createObjectURL(blob);
+            statusText.textContent    = "Assistant responding...";
+            waveAnimation.classList.remove('hidden'); // Keep wave animation during playback
+            // transcriptDisplay.textContent = ''; // Optional: Clear transcript before assistant response
+
+            await audioPlayback.play();
+
+            audioPlayback.onended = () => {
+                isPlaying = false;
+                waveAnimation.classList.add('hidden');
+                // immediately start listening again
+                if (!isRecording) startRecording();
+            };
+        }
+
+        // Initialize audio and analyzers (kept as is)
+        async function initAudio() {
+             try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser     = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+
+                processor = audioContext.createScriptProcessor(2048, 1, 1);
+                analyser.connect(processor);
+                processor.connect(audioContext.destination);
+                processor.onaudioprocess = () => {
+                    if (isPlaying) checkInstantInterruption();
+                    if (isRecording) checkRecordingSilence();
+                };
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    if (ws.readyState === WebSocket.OPEN) {
+                         ws.send(blob);
+                    } else {
+                         console.error("WebSocket is not open.");
+                         statusText.textContent = "Error: Connection lost. Refresh the page.";
+                         startBtn.classList.remove('hidden');
+                         stopBtn.classList.add('hidden');
+                    }
+                };
+             } catch (error) {
+                console.error("Error accessing microphone:", error);
+                statusText.textContent = "Error: Could not access microphone. Please allow access.";
+                startBtn.disabled = false; // Re-enable start button if init fails
+             }
+        }
+
+        // Silence/interrupt detection (kept as is)
+        function checkInstantInterruption() {
+            const data = new Uint8Array(analyser.fftSize);
+            analyser.getByteTimeDomainData(data);
+            const rms = calculateRMS(data);
+            if (rms > SPEECH_THRESHOLD) {
+                // interrupt playback & start listening
+                audioPlayback.pause();
+                audioPlayback.currentTime = 0;
+                isPlaying = false;
+                waveAnimation.classList.add('hidden'); // Hide wave animation during interruption
+                if (!isRecording) {
+                    statusText.textContent = "Interrupted! Listening...";
+                     waveAnimation.classList.remove('hidden'); // Show wave during recording
+                    startRecording();
+                }
+            }
+        }
+
+        function checkRecordingSilence() {
+            const data = new Uint8Array(analyser.fftSize);
+            analyser.getByteTimeDomainData(data);
+            const rms = calculateRMS(data);
+            if (rms < SPEECH_THRESHOLD) {
+                if (!silenceTimer) {
+                    silenceTimer = setTimeout(stopRecording, SILENCE_TIMEOUT);
+                }
+            } else {
+                clearTimeout(silenceTimer);
+                silenceTimer = null;
+            }
+        }
+
+        function calculateRMS(data) {
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) {
+                sum += Math.pow((data[i] - 128) / 128, 2);
+            }
+            return Math.sqrt(sum / data.length);
+        }
+
+        // Button handlers (kept as is, added disabled state handling)
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            statusText.textContent = "Initializing audio...";
+            await initAudio();
+            startBtn.disabled = false; // Re-enable happens inside initAudio on success/fail
+            if (!startBtn.disabled) { // Only start recording if init was successful
+                 startRecording();
+            }
+        });
+        stopBtn.addEventListener('click', stopRecording);
+
+         // Initial state
+         window.addEventListener('load', () => {
+             statusText.textContent = "Click 'Start Conversation' to begin";
+             startBtn.classList.remove('hidden');
+             stopBtn.classList.add('hidden');
+         });
+
+    </script>
+</body>
+</html>

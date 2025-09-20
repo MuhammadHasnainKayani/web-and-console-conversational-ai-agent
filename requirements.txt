@@ -1,0 +1,22 @@
+# Core Web Framework
+Django>=4.2,<5.0
+djangorestframework>=3.14.0
+
+# WebSockets / Real-time
+channels>=4.0.0
+channels-redis>=4.1.0
+
+# Machine Learning / Deep Learning
+tensorflow>=2.13.0
+scikit-learn>=1.3.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Image Processing
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
+

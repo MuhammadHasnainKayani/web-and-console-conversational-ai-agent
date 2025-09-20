@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advanced Voice Assistant</title>
+  <style>
+    :root {
+      --primary-color: #5563DE;
+      --primary-dark: #3d50b9;
+      --secondary-color: #74ABE2;
+      --accent-color: #FF6B6B;
+      --bg-gradient: linear-gradient(135deg, #f5f7fa, #e4e8f0);
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --container-bg: #fff;
+      --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --text-color: #333;
+      --text-muted: #777;
+      --border-radius: 16px;
+      --transition: all 0.3s ease;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: var(--text-color);
+      padding: 20px;
+    }
+    .container {
+      background: var(--container-bg);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--container-shadow);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    button {
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 0.9rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(85, 99, 222, 0.25);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+    }
+    button.secondary:hover {
+      background: rgba(85, 99, 222, 0.05);
+      box-shadow: none;
+    }
+    button.accent {
+      background: var(--accent-color);
+    }
+    button.accent:hover {
+      background: #ff5252;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .voice-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .voice-option {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .voice-option:hover {
+      border-color: var(--primary-color);
+    }
+    .voice-option.active {
+      border-color: var(--primary-color);
+      background: rgba(85, 99, 222, 0.05);
+    }
+    #status {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      min-height: 1.5rem;
+      color: var(--text-muted);
+    }
+    .visualizer {
+      height: 70px;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .wave {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 3px;
+    }
+    .wave span {
+      display: block;
+      width: 4px;
+      height: 20px;
+      background-color: var(--primary-color);
+      border-radius: 2px;
+      animation: wave 1.2s infinite ease-in-out;
+    }
+    .wave span:nth-child(2) { animation-delay: 0.1s; }
+    .wave span:nth-child(3) { animation-delay: 0.2s; }
+    .wave span:nth-child(4) { animation-delay: 0.3s; }
+    .wave span:nth-child(5) { animation-delay: 0.4s; }
+    .wave span:nth-child(6) { animation-delay: 0.5s; }
+    .wave span:nth-child(7) { animation-delay: 0.6s; }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.3); }
+      50% { transform: scaleY(1.5); }
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .transcript {
+      text-align: left;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 8px;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.02);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Typewriter text effect */
+    .typewriter {
+      overflow: hidden;
+      border-right: 3px solid var(--primary-color);
+      white-space: nowrap;
+      margin: 0 auto;
+      animation: 
+        typing 3s steps(40, end),
+        blink-caret .75s step-end infinite;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--primary-color); }
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+        width: 95%;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      button {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+      }
+      .row {
+        flex-direction: column;
+      }
+      .visualizer {
+        height: 60px;
+      }
+    }
+    
+    /* Loading spinner */
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Advanced Voice Assistant</h1>
+    <p class="subtitle">Your intelligent voice companion powered by AI</p>
+    
+    <div class="visualizer">
+      <canvas id="visualizerCanvas"></canvas>
+      <div class="wave hidden" id="waveAnimation">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    
+    <!-- Transcript display for streamed tokens -->
+    <div class="transcript" id="transcriptDisplay"></div>
+    
+    <!-- Hidden audio element for TTS playback -->
+    <audio id="audioPlayback" class="hidden"></audio>
+    
+    <p id="status">Click "Start" to begin your conversation</p>
+    
+    <div class="control-panel">
+      <div class="row">
+        <button id="startBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Start
+        </button>
+        <button id="stopBtn" class="accent hidden">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect>
+          </svg>
+          Stop
+        </button>
+      </div>
+    </div>
+  </div>
+    <script>
+      const startBtn = document.getElementById('startBtn');
+      const statusText = document.getElementById('status');
+      const waveAnimation = document.getElementById('waveAnimation');
+      const audioPlayback = document.getElementById('audioPlayback');
+  
+      // Audio Configuration
+      const SPEECH_THRESHOLD = 0.090; // Ultra-sensitive threshold
+      const SILENCE_TIMEOUT = 1500; // 1.5 seconds of silence to stop
+  
+      let mediaRecorder;
+      let audioChunks = [];
+      let isRecording = false;
+      let isPlaying = false;
+      let audioContext, analyser, processor;
+      let silenceTimer = null;
+  
+      // WebSocket Setup
+      const ws = new WebSocket(
+        `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/voiceagent/`
+      );
+  
+      ws.onmessage = async (event) => {
+        if (event.data instanceof Blob) {
+          await handleTTSResponse(event.data);
+        }
+      };
+  
+      async function handleTTSResponse(blob) {
+        isPlaying = true;
+        audioPlayback.src = URL.createObjectURL(blob);
+        
+        try {
+          statusText.textContent = "Assistant responding...";
+          waveAnimation.classList.remove('hidden');
+          await audioPlayback.play();
+        } catch (error) {
+          console.error('Playback failed:', error);
+        }
+        
+        audioPlayback.onended = () => {
+          isPlaying = false;
+          if (!isRecording) startRecording();
+        };
+      }
+  
+      async function initAudio() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          
+          // Audio Analysis Setup
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 2048;
+          
+          const source = audioContext.createMediaStreamSource(stream);
+          source.connect(analyser);
+          
+          // Create continuous audio monitor
+          processor = audioContext.createScriptProcessor(2048, 1, 1);
+          analyser.connect(processor);
+          processor.connect(audioContext.destination);
+          
+          processor.onaudioprocess = () => {
+            if (isPlaying) checkInstantInterruption();
+            if (isRecording) checkRecordingSilence();
+          };
+  
+          // MediaRecorder Setup
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = async () => {
+            const blob = new Blob(audioChunks, { type: 'audio/wav' });
+            audioChunks = [];
+            ws.send(await blob.arrayBuffer());
+          };
+        } catch (error) {
+          console.error('Audio init failed:', error);
+        }
+      }
+  
+      function checkInstantInterruption() {
+        const data = new Uint8Array(analyser.fftSize);
+        analyser.getByteTimeDomainData(data);
+        const rms = calculateRMS(data);
+  
+        if (rms > SPEECH_THRESHOLD) {
+          handleInstantInterruption();
+        }
+      }
+  
+      function handleInstantInterruption() {
+        // Immediate interruption actions
+        audioPlayback.pause();
+        audioPlayback.currentTime = 0;
+        isPlaying = false;
+        
+        // Start recording immediately
+        if (!isRecording) {
+          statusText.textContent = "Interrupted! Listening...";
+          statusText.classList.add('status-alert');
+          waveAnimation.classList.remove('hidden');
+          mediaRecorder.start();
+          isRecording = true;
+        }
+      }
+  
+      function checkRecordingSilence() {
+        const data = new Uint8Array(analyser.fftSize);
+        analyser.getByteTimeDomainData(data);
+        const rms = calculateRMS(data);
+  
+        if (rms < SPEECH_THRESHOLD) {
+          if (!silenceTimer) {
+            silenceTimer = setTimeout(() => stopRecording(), SILENCE_TIMEOUT);
+          }
+        } else {
+          clearTimeout(silenceTimer);
+          silenceTimer = null;
+        }
+      }
+  
+      function calculateRMS(data) {
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) {
+          sum += Math.pow((data[i] - 128) / 128, 2);
+        }
+        return Math.sqrt(sum / data.length);
+      }
+  
+      function stopRecording() {
+        if (mediaRecorder?.state === 'recording') {
+          mediaRecorder.stop();
+          isRecording = false;
+          statusText.textContent = "Processing...";
+          statusText.classList.remove('status-alert');
+          waveAnimation.classList.add('hidden');
+        }
+      }
+  
+      startBtn.addEventListener('click', async () => {
+        startBtn.disabled = true;
+        await initAudio();
+        mediaRecorder.start();
+        isRecording = true;
+        statusText.textContent = "Listening...";
+        waveAnimation.classList.remove('hidden');
+      });
+    </script>
+  </body>
+  </html>
